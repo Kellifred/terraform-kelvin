@@ -14,47 +14,32 @@ data "aws_ami" "amazon_linux" {
   owners = ["amazon"] # Canonical
 }
 
-data "aws_vpc" "project-1" {
-  id = "vpc-0d575aeede3f156b8"
+data "aws_vpc" "protradenet_vpc" {
+  id = "vpc-0a87cea05526db67d"
 }
 
-data "aws_subnet" "priv-1" {
-  id = "subnet-0575b740fb00a93e5"
+data "aws_subnet" "protradenet_priv-1" {
+  id = "subnet-0ac5b975f1505a4d9"
 }
 
-data "aws_subnet" "priv-2" {
-  id = "subnet-0f9885713aa384c17"
+data "aws_subnet" "protradenet_priv-2" {
+  id = "subnet-023d5d457e96deb29"
 }
 
-data "aws_subnet" "public-1" {
-  id = "subnet-04e7666984a41f53b"
+data "aws_subnet" "protradenet_public-1" {
+  id = "subnet-060c1a045db9f924a"
 }
 
-data "aws_subnet" "public-2" {
-  id = "subnet-002d48988ca0204e2"
+data "aws_subnet" "protradenet_public-2" {
+  id = "subnet-0d03dfc09e3ac4a3f"
 }
 
-
-resource "random_string" "random-1" {
-    length = 4
-    special = false 
-    upper = false
-  
-}
-
-resource "random_string" "random-2" {
-    length = 4
-    special = true
-    upper = false
-  
-}
-
-resource "aws_instance" "project-1" {
+resource "aws_instance" "protradenet-1" {
   ami           = data.aws_ami.amazon_linux.id
   instance_type = "t3a.large"
-  key_name = aws_key_pair.deployer.key_name
-  subnet_id = data.aws_subnet.priv-1.id
-  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+  key_name = aws_key_pair.protradenet-key.key_name
+  subnet_id = data.aws_subnet.protradenet_priv-1.id
+  vpc_security_group_ids = [aws_security_group.protradenet-sg.id]
   root_block_device {
     volume_size = "30"
     
@@ -66,18 +51,18 @@ resource "aws_instance" "project-1" {
   }
 
   tags = {
-    Name = "project - ${random_string.random-1.result}"
+    Name = "protradenet-1"
   }
 }
 
 
 
-resource "aws_key_pair" "deployer" {
-  key_name   = "new_key"
-  public_key = tls_private_key.project.public_key_openssh
+resource "aws_key_pair" "protradenet-key" {
+  key_name   = "protradenet_key"
+  public_key = tls_private_key.protradenet_key.public_key_openssh
 }
 
-resource "tls_private_key" "project" {
+resource "tls_private_key" "protradenet_key" {
   algorithm = "RSA"
   rsa_bits  = 4096  
 }
@@ -89,12 +74,12 @@ resource "tls_private_key" "project" {
 
 
 
-resource "aws_instance" "project-2" {
+resource "aws_instance" "protradenet-2" {
   ami           = data.aws_ami.amazon_linux.id
   instance_type = "t3a.large"
-  key_name = aws_key_pair.deployer.key_name
-  subnet_id = data.aws_subnet.priv-2.id
-  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+  key_name = aws_key_pair.protradenet-key.key_name
+  subnet_id = data.aws_subnet.protradenet_priv-2.id
+  vpc_security_group_ids = [aws_security_group.protradenet-sg.id]
   root_block_device {
     volume_size = "30"
   }
@@ -106,6 +91,6 @@ resource "aws_instance" "project-2" {
 
 
   tags = {
-    Name = "project - ${random_string.random-2.result}"
+    Name = "protradenet-2"
   }
 }
